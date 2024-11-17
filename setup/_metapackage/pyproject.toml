@@ -1,30 +1,11 @@
 [project]
-name = "odoo-addons-oca-field-service"
-version = "17.0.20240930.0"
+name = "odoo-addons-oca-geospatial"
+version = "17.0.20241029.0"
 dependencies = [
-    "odoo-addon-base_territory>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_account>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_account_analytic>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_activity>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_calendar>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_crm>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_equipment_stock>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_geoengine>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_isp_flow>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_project>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_recurring>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_repair>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_route>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_sale>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_sale_recurring>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_sale_stock>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_size>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_stage_server_action>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_stage_validation>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_stock>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_stock_request>=17.0dev,<17.1dev",
-    "odoo-addon-fieldservice_vehicle>=17.0dev,<17.1dev",
+    "odoo-addon-base_geoengine>=17.0dev,<17.1dev",
+    "odoo-addon-base_geoengine_demo>=17.0dev,<17.1dev",
+    "odoo-addon-geoengine_base_geolocalize>=17.0dev,<17.1dev",
+    "odoo-addon-geoengine_partner>=17.0dev,<17.1dev",
 ]
 classifiers=[
     "Programming Language :: Python",

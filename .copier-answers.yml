@@ -18,9 +18,9 @@ org_name: Odoo Community Association (OCA)
 org_slug: OCA
 rebel_module_groups: []
 repo_description: 'TODO: add repo description.'
-repo_name: field-service
-repo_slug: field-service
-repo_website: https://github.com/OCA/field-service
+repo_name: geospatial
+repo_slug: geospatial
+repo_website: https://github.com/OCA/geospatial
 use_pyproject_toml: true
 use_ruff: true
 
