@@ -40,4 +40,3 @@ class WebsiteVisitor(models.Model):
             return self.browse()
 
         return super()._get_visitor_from_request(*args, **kwargs)
-``
