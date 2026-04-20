@@ -16,7 +16,7 @@ class WebsiteVisitor(models.Model):
             website_tracking_guard.disable_tracking = 1
 
         Accepted truthy values:
-            1, true, True, yes, on
+            1, true, yes, on
         """
         value = (
             self.env["ir.config_parameter"]
@@ -28,15 +28,35 @@ class WebsiteVisitor(models.Model):
     @api.model
     def _get_visitor_from_request(self, *args, **kwargs):
         """
-        MVP strategy:
-        - if the guard is enabled, return an empty visitor recordset
-        - otherwise, keep standard Odoo behavior
+        If tracking is disabled, return an empty visitor recordset.
+        This disables visitor tracking creation/lookup from frontend flows.
         """
         if request and self._tracking_guard_is_enabled():
-            _logger.debug(
-                "Website visitor tracking skipped by website_tracking_guard for path=%s",
+            _logger.info(
+                "website_tracking_guard: visitor tracking skipped for path=%s",
                 request.httprequest.path,
             )
             return self.browse()
 
         return super()._get_visitor_from_request(*args, **kwargs)
+
+    def _add_viewed_product(self, product_id, *args, **kwargs):
+        """
+        website_sale calls this method for recently viewed products.
+
+        If tracking is disabled OR the visitor recordset is empty,
+        do nothing instead of crashing on ensure_one().
+        """
+        if not self:
+            _logger.debug(
+                "website_tracking_guard: skip _add_viewed_product because visitor is empty"
+            )
+            return False
+
+        if self._tracking_guard_is_enabled():
+            _logger.debug(
+                "website_tracking_guard: skip _add_viewed_product because tracking is disabled"
+            )
+            return False
+
+        return super()._add_viewed_product(product_id, *args, **kwargs)
