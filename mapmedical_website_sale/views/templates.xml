@@ -1,0 +1,856 @@
+<odoo>
+    <template id="product_customer_lead_time">
+        <div style="min-height: 1.5rem" t-attf-class="o_product_customer_lead_time pe-5 pe-lg-0 {{'small' if apply_small else ''}}">
+            <span t-field="product.customer_lead_time"/>
+        </div>
+    </template>
+
+    <!-- change main images in /shop grid/table -->
+    <template id="products_item" inherit_id="website_sale.products_item">
+
+        <!-- hide OOTB main image-->
+        <span t-field="image_holder.image_1920" position="attributes">
+            <attribute name="class" add="d-none" separator=" "/>
+        </span>
+
+        <xpath expr="//div[hasclass('oe_product_image')]" position="attributes">
+            <attribute name="style">height: unset !important;</attribute>
+        </xpath>
+
+        <span t-field="image_holder.image_1920" position="after">
+            <!-- insert image from url_image field in product after hidden main image if url_image if filled -->
+            <span t-field="product.url_image"
+                  t-options="{'widget': 'image_url', 'class': 'h-100 w-100 position-absolute'}"
+                  t-attf-class="oe_product_image_img_wrapper d-flex h-100 justify-content-center align-items-center position-absolute #{not product.url_image and 'd-none'}"
+            />
+            <!-- OOTB !thumbnail! otherwise -->
+            <span class="oe_product_image_img_wrapper d-flex h-100 justify-content-center align-items-center position-absolute">
+                <img src="/product/static/img/placeholder_thumbnail.png"
+                     t-attf-class="h-100 w-100 position-absolute #{product.url_image and 'd-none'}"
+                />
+            </span>
+        </span>
+
+        <xpath expr="//div[hasclass('o_wsale_product_sub')]" position="before">
+            <t t-call="mapmedical_website_sale.product_customer_lead_time">
+                <t t-set="product" t-value="product"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- change carousel indicators in product's page -->
+    <template id="carousel_product_indicators" inherit_id="website_sale.carousel_product_indicators">
+        <div t-field="product_image.image_128" position="attributes">
+            <!-- show OOTB if record's model is product.image -->
+            <attribute name="t-if">product_image._name == 'product.image'</attribute>
+        </div>
+        <div t-field="product_image.image_128" position="after">
+            <!-- new logic otherwise -->
+            <t t-else="">
+                <!-- show image from url_image field in product if url_image if filled -->
+                <img t-if="product_image.url_image"
+                     t-att-src="product_image.url_image"
+                     class="img o_image_64_cover"
+                     loading="lazy"
+                     t-att-alt="product_image.name"
+                />
+                <!-- OOTB thumbnail otherwise -->
+                <img t-else=""
+                     src="/product/static/img/placeholder_thumbnail.png"
+                     class="img o_image_64_cover"
+                     loading="lazy"
+                     t-att-alt="product_image.name"
+                />
+            </t>
+        </div>
+    </template>
+
+    <!-- change selected image in product's page -->
+    <template id="shop_product_image" inherit_id="website_sale.shop_product_image">
+        <!-- replace logic if product have image from url_image field only (no extras) -->
+        <xpath expr="//div[2]/div[1]" position="replace">
+            <!-- show image from url_image if url_image if filled -->
+            <div class="d-flex align-items-start justify-content-center h-100 oe_unmovable">
+                <img t-if="product_image.url_image"
+                     t-att-src="product_image.url_image"
+                     class="oe_unmovable product_detail_img mh-100"
+                     t-att-alt="product_image.name"
+                />
+                <!-- OOTB thumbnail otherwise -->
+                <img t-else=""
+                     src="/product/static/img/placeholder_thumbnail.png"
+                     class="oe_unmovable product_detail_img mh-100"
+                     t-att-alt="product_image.name"
+                />
+            </div>
+        </xpath>
+
+        <!-- replace logic if product have more 1 image (extras + url_image) -->
+        <div t-else="" t-field="product_image.image_1920" position="replace">
+            <div t-else="" t-att-class="image_classes + ' oe_unmovable'">
+                <!-- show image from url_image if selected image is first and url_image if filled -->
+                <img t-if="product_image._name != 'product.image' and product_image.url_image"
+                     class="oe_unmovable product_detail_img mh-100"
+                     t-att-alt="product_image.name"
+                     t-att-src="product_image.url_image"
+                />
+                <!-- show OOTB thumbnail if selected image is first and url_image if not filled -->
+                <img t-elif="product_image._name != 'product.image' and not product_image.url_image"
+                     class="oe_unmovable product_detail_img mh-100"
+                     t-att-alt="product_image.name"
+                     src="/product/static/img/placeholder_thumbnail.png"
+                />
+                <!-- OOTB logic if selected image is not first -->
+                <div t-else=""
+                     t-field="product_image.image_1920"
+                     t-att-class="image_classes + ' oe_unmovable'"
+                     t-options='{"widget": "image", "class": "oe_unmovable product_detail_img mh-100", "alt-field": "name"}'
+                />
+            </div>
+        </div>
+    </template>
+
+    <template id="address" inherit_id="website_sale.address">
+        <xpath expr="//form/div" position="after">
+            <div class="d-flex align-items-center mb-2">
+                <label class="form-check-label mb-0" for="is_default_address">Make it default address</label>
+                <t t-set="so_partner_default_addresses"
+                   t-value="website_sale_order.partner_id.default_partner_shipping_address_id, website_sale_order.partner_id.default_partner_invoicing_address_id"
+                />
+                <input type="checkbox"
+                       id="is_default_address"
+                       name="is_default_address"
+                       class="form-check-label ms-3"
+                       t-att-checked="'checked' if (checkout.get('is_default_address') if isinstance(checkout, dict) else checkout in so_partner_default_addresses) else None"
+                />
+            </div>
+        </xpath>
+    </template>
+
+    <template id="address_kanban" inherit_id="website_sale.address_kanban">
+        <!-- Hide the original "Edit" button to align our "Default" element on the same line with the new "Edit" button -->
+        <xpath expr="//a[hasclass('js_edit_address')]" position="attributes">
+            <attribute name="class" add="d-none" separator=" "/>
+        </xpath>
+
+        <xpath expr="//div[hasclass('card-body', 'd-flex', 'flex-column', 'align-items-start')]" position="inside">
+            <div class="d-flex w-100 align-items-center mt-auto">
+                <t t-if="contact._can_be_edited_by_current_customer(website_sale_order, mode)">
+                    <t t-set="new_address_href" t-value="'/shop/address?mode=' + mode"/>
+                    <a t-att-href="new_address_href + '&amp;partner_id=' + str(contact.id)"
+                       class="js_edit_address btn btn-link p-0"
+                       role="button"
+                       title="Edit this address"
+                       aria-label="Edit this address"
+                    >
+                        <i class="fa fa-pencil me-1"/>Edit
+                    </a>
+                </t>
+
+                <!-- Check if the address is default and if it should be displayed as default in the current section -->
+                <t t-if="contact in (order.partner_id.default_partner_shipping_address_id, order.partner_id.default_partner_invoicing_address_id)">
+                    <span class="ms-auto fw-bold" style="color: #09a078;">Default</span>
+                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="payment" inherit_id="website_sale.payment">
+        <xpath expr="//div[@id='oe_structure_website_sale_payment_1']" position="after">
+            <div class="form-group mt-3 mb-3 fw-bolder">
+                <label for="purchase_order_number">Purchase Order Number (Optional)</label>
+                <input type="text" id="purchase_order_number" name="purchase_order_number" class="form-control"/>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="payment_delivery" inherit_id="website_sale.payment_delivery">
+        <xpath expr="//div[@id='delivery_carrier']" position="after">
+            <div class="form-group mt-3 mb-3 fw-bolder">
+                <label for="customer_notes">Customer Notes / Special Instructions</label>
+                <textarea id="customer_notes" name="customer_notes" class="form-control"/>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="payment_delivery_methods" inherit_id="website_sale.payment_delivery_methods">
+        <!-- if delivery.website_description -->
+        <xpath expr="//div[@t-field='delivery.website_description']" position="after">
+            <div t-if="delivery.additional_carrier_description"
+                 t-field="delivery.additional_carrier_description"
+                 class="text-muted mt-2"
+            />
+        </xpath>
+        <!-- if not delivery.website_description -->
+        <xpath expr="//div[hasclass('small')]" position="after">
+            <div t-if="not delivery.website_description and delivery.additional_carrier_description"
+                 t-field="delivery.additional_carrier_description"
+                 class="text-muted mt-2"
+            />
+        </xpath>
+    </template>
+
+    <template id="website_sale.products_breadcrumb" name="Products Breadcrumb">
+        <ol t-if="category" t-attf-class="breadcrumb #{_classes}">
+            <li class="breadcrumb-item">
+                <a href="/shop" t-if="not brand">Products</a>
+                <a t-att-href="keep('/brand/' + str(brand.website_url), category=0)" t-if="brand">Products</a>
+            </li>
+            <t t-foreach="category.parents_and_self" t-as="cat">
+                <li t-if="cat == category" class="breadcrumb-item">
+                    <span class="d-inline-block" t-field="cat.name"/>
+                </li>
+                <li t-else="" class="breadcrumb-item">
+                    <a t-att-href="keep('/' + cat.custom_url.lower().replace('&amp;', '-').replace('(', '').replace(')', '').replace('%', '').replace('″', '').replace('½', '').replace('₂', '') + '-' + str(cat.id), category=0)" t-field="cat.name" t-if="not brand"/>
+                    <a t-att-href="'/brand/' + str(brand.website_url) + '?category=' + str(cat.id)" t-field="cat.name" t-if="brand"/>
+                </li>
+            </t>
+        </ol>
+    </template>
+
+    <template id="breadcrumb_recursive">
+        <t t-if="category.parent_id">
+            <t t-call="mapmedical_website_sale.breadcrumb_recursive">
+                <t t-set="category" t-value="category.parent_id" />
+                <t t-set="category_depth" t-value="category_depth - 1"/>
+            </t>
+        </t>
+        <li class="breadcrumb-item">
+            <a
+                itemprop="item"
+                t-att-href="keep('/' + category.custom_url.lower() + '-' + str(category.id), category=0)"
+                t-if="not brand"
+            >
+                <span t-field="category.name" />
+                <meta itemprop="position" t-att-content="category_depth"/>
+            </a>
+            <a
+                itemprop="item"
+                t-att-href="'/brand/' + str(brand.website_url) + '?category=' + str(category.id)"
+                t-if="brand"
+            >
+             <span t-field="category.name" />
+                <meta itemprop="position" t-att-content="category_depth"/>
+            </a>
+        </li>
+    </template>
+
+    <template id="product" inherit_id="website_sale.product">
+        <xpath expr="//ol[hasclass('breadcrumb')]" position="replace"/>
+        <!-- Hide OOTB product_full_description -->
+        <div  id="product_full_description" position="replace"/>
+        <!-- Replace layout of product_detail_main to include product categories list -->
+        <div id="product_detail_main" position="replace">
+            <div class="row" id="product_detail_main" data-name="Product Page"
+                 t-att-data-image_width="website.product_page_image_width"
+                 t-att-data-image_layout="website.product_page_image_layout">
+            <div class="col-lg-2 col-12 order-2 order-lg-1 d-none d-lg-block">
+                <t t-call="website_sale.products_categories_list">
+                    <t t-set="category" t-value="current_category"/>
+                </t>
+            </div>
+            <div class="col-lg-10 col-12 order-1 order-lg-2">
+                <div class="row">
+                    <div class="col-lg-10 col-12">
+                        <ol class="breadcrumb p-0 mb-2 m-lg-0" itemscope="itemscope" itemtype="https://schema.org/BreadcrumbList">
+                            <li class="breadcrumb-item o_not_editable" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
+                                <a itemprop="item" t-att-href="keep(category=0)">
+                                    <span itemprop="name">All Products</span>
+                                </a>
+                                <meta itemprop="position" content="1"/>
+                            </li>
+                            <t
+                                t-if="category"
+                                t-call="mapmedical_website_sale.breadcrumb_recursive"
+                            >
+                                <!-- Add 1 to category_depth for the current category, because All Products is level 0-->
+                                <t t-set="category_depth" t-value="category_depth + 1"/>
+                            </t>
+                            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope="itemscope" itemtype="https://schema.org/ListItem">
+                                <span itemprop="name" t-field="product.name"/>
+                                <meta itemprop="position" t-att-content="category_depth + 2" />
+                            </li>
+                        </ol>
+                    </div>
+                <t t-set="image_cols" t-value="website._get_product_page_proportions()"/>
+                <div t-attf-class="col-lg-#{image_cols[0]} mt-lg-4 o_wsale_product_images position-relative" t-if="website.product_page_image_width != 'none'">
+                    <t t-call="website_sale.shop_product_images"/>
+                </div>
+                <div t-attf-class="col-lg-#{image_cols[1]} mt-md-4" id="product_details">
+                    <t t-set="base_url" t-value="website.get_base_url()"/>
+                    <!-- TODO: remove next line in master. Stable fix not to break custos. -->
+                    <t t-if="False" t-set="base_url" t-value="product.get_base_url()"/>
+                    <h1 itemprop="name" t-field="product.name">Product Name</h1>
+                    <span itemprop="url" style="display:none;" t-esc="base_url + product.website_url"/>
+                    <span itemprop="image" style="display:none;" t-esc="base_url + website.image_url(product, 'image_1920')" />
+                    <t t-if="is_view_active('website_sale.product_comment')">
+                        <a href="#o_product_page_reviews" class="o_product_page_reviews_link text-decoration-none">
+                            <t t-call="portal_rating.rating_widget_stars_static">
+                                <t t-set="rating_avg" t-value="product.rating_avg"/>
+                                <t t-set="trans_text_plural">%s reviews</t>
+                                <t t-set="trans_text_singular">%s review</t>
+                                <t t-set="rating_count" t-value="(trans_text_plural if product.rating_count > 1 else trans_text_singular) % product.rating_count"/>
+                            </t>
+                        </a>
+                    </t>
+                    <p t-field="product.description_sale" class="text-muted my-2" placeholder="A short description that will also appear on documents." />
+                    <div t-field="product.description_ecommerce" class="oe_structure"
+                        placeholder="A detailed, formatted description to promote your product on this page. Use '/' to discover more features."/>
+                    <form t-if="product._is_add_to_cart_possible()" action="/shop/cart/update" method="POST">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" t-nocache="The csrf token must always be up to date."/>
+                        <div class="js_product js_main_product mb-3">
+                            <div>
+                                <t t-call="website_sale.product_price"/>
+                                <small t-if="'base_unit_price' in combination_info"
+                                    class="ms-1 text-muted o_base_unit_price_wrapper d-none" groups="website_sale.group_show_uom_price">
+                                    <t t-call='website_sale.base_unit_price'/>
+                                </small>
+                            </div>
+                            <t t-placeholder="select">
+                                <input type="hidden" class="product_id" name="product_id" t-att-value="product_variant.id" />
+                                <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product.id" />
+                                <input t-if="product.public_categ_ids.ids" type="hidden" class="product_category_id" name="product_category_id" t-att-value="product.public_categ_ids.ids[0]" />
+                                <t t-call="website_sale.variants">
+                                    <t t-set="ul_class" t-valuef="flex-column" />
+                                    <t t-set="parent_combination" t-value="None" />
+                                </t>
+                            </t>
+                            <p t-if="True" class="css_not_available_msg alert alert-warning">This combination does not exist.</p>
+                            <div id="o_wsale_cta_wrapper" class="d-flex flex-wrap align-items-center">
+                                <t t-set="hasQuantities" t-value="false"/>
+                                <t t-set="hasBuyNow" t-value="false"/>
+                                <!-- TODO: remove line below in master -->
+                                <t t-set="ctaSizeBig" t-value="not hasQuantities or not hasBuyNow"/>
+
+                                <div id="add_to_cart_wrap" t-attf-class="{{'d-none' if combination_info['prevent_zero_price_sale'] else 'd-inline-flex'}} align-items-center mb-2 me-auto">
+                                    <a data-animation-selector=".o_wsale_product_images" role="button" id="add_to_cart" t-attf-class="btn btn-primary js_check_product a-submit flex-grow-1" href="#">
+                                        <i class="fa fa-shopping-cart me-2"/>
+                                        Add to cart
+                                    </a>
+                                </div>
+                                <div id="product_option_block" class="d-flex flex-wrap w-100"/>
+                            </div>
+                            <div id="contact_us_wrapper"
+                                t-attf-class="{{'d-flex' if combination_info['prevent_zero_price_sale'] else 'd-none'}} oe_structure oe_structure_solo #{_div_classes}">
+                                <section class="s_text_block" data-snippet="s_text_block" data-name="Text">
+                                    <div class="container">
+                                        <a t-att-href="website.contact_us_button_url"
+                                        class="btn btn-primary btn_cta">Contact Us
+                                        </a>
+                                    </div>
+                                </section>
+                            </div>
+                            <t t-if="is_view_active('website_sale.product_tags')" t-call="website_sale.product_tags">
+                                <t t-set="all_product_tags" t-value="product_variant.all_product_tag_ids"/>
+                            </t>
+                        </div>
+                    </form>
+                    <p t-elif="not product.active" class="alert alert-warning">This product is no longer available.</p>
+                    <p t-else="" class="alert alert-warning">This product has no valid combination.</p>
+                    <div id="product_attributes_simple">
+                        <t t-set="single_value_attributes" t-value="product.valid_product_template_attribute_line_ids._prepare_single_value_for_display()"/>
+                        <table t-attf-class="table table-sm text-muted {{'' if single_value_attributes else 'd-none'}}">
+                            <t t-foreach="single_value_attributes" t-as="attribute">
+                                <tr>
+                                    <td>
+                                        <span t-field="attribute.name"/>:
+                                        <t t-foreach="single_value_attributes[attribute]" t-as="ptal">
+                                            <span t-field="ptal.product_template_value_ids._only_active().name"/><t t-if="not ptal_last">, </t>
+                                        </t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                    <t t-set="product_documents" t-value="product.sudo().product_document_ids.filtered(lambda doc: doc.shown_on_product_page)"/>
+                    <div id="product_documents" class="my-2" t-if="product_documents">
+                        <h5>Documents</h5>
+                        <t t-foreach="product_documents" t-as="document_sudo">
+                            <t t-set="attachment_sudo" t-value="document_sudo.ir_attachment_id"/>
+                            <t t-set="target" t-value="attachment_sudo.type == 'url' and '_blank' or '_self'"/>
+                            <t t-set="icon" t-value="attachment_sudo.type == 'url' and 'fa-link' or 'fa-download'"/>
+                            <div>
+                                <a t-att-href="'/shop/' + slug(product) + '/document/' + str(document_sudo.id)" t-att-target="target">
+                                    <i t-att-class="'fa ' + icon"/>
+                                    <t t-out="attachment_sudo.name"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                    <div id="o_product_terms_and_share" class="d-flex justify-content-between flex-column flex-md-row align-items-md-end mb-3">
+                    </div>
+                </div>
+                </div>
+                <div class="row">
+                    <label t-if="product.website_description" class="h4 pt-3" for="product_full_description">Product description</label>
+                    <div itemprop="description" t-field="product.website_description" class="oe_structure oe_empty mt16" id="product_full_description"/>
+                </div>
+            </div>
+        </div>
+        </div>
+        <xpath expr="//t[@t-cache='pricelist,product,fiscal_position']" position="before">
+            <t t-set="is_public_user" t-value="user_id.has_group('base.group_public')"/>
+        </xpath>
+        <xpath expr="//t[@t-cache='pricelist,product,fiscal_position']" position="attributes">
+            <attribute name="t-cache">pricelist,product,fiscal_position,is_public_user</attribute>
+        </xpath>
+        <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
+            <div id="product_uom_name" class="css_quantity input-group d-inline-flex me-2 mb-2 align-middle rounded border">
+                <span class="input-group-text bg-white">
+                    <strong><t t-esc="product.uom_id.name"/></strong>
+                </span>
+            </div>
+        </xpath>
+        <form position="before">
+            <input type="hidden" class="product_template_id" name="product_template_id" t-att-value="product.id" />
+
+            <div t-if="product.unique_reference" class="o_product_unique_reference">
+                SKU Number: <span t-field="product.unique_reference"/>
+            </div>
+            <t t-call="mapmedical_website_sale.product_customer_lead_time">
+                <t t-set="product" t-value="product"/>
+            </t>
+            <div t-if="product.manufacturer_id" class="o_product_unique_reference">
+                Brand: <a class="o_unlogged_alert_text" t-att-href="'/brand/' + product.manufacturer_id.website_url"><span t-field="product.manufacturer_id.name"/></a>
+            </div>
+        </form>
+        <div id="product_full_description" position="attributes">
+            <attribute name="style">font-size: 16px;</attribute>
+        </div>
+        <p t-else="" position="replace">
+            <t t-else="">
+                <t t-call="website_sale.product_price"/>
+                <p class="alert alert-warning">
+                    <a class="o_unlogged_alert_text" href="/web/login">Log in</a>
+                    <span class="o_unlogged_alert_text">or</span>
+                    <a class="o_unlogged_alert_text" href="/web/signup">create an account</a>
+                    <span class="o_unlogged_alert_text">to proceed with checkout.</span>
+                </p>
+            </t>
+        </p>
+    </template>
+
+    <!-- Change parent view of original alternative_products view to avoid invalid inheritance chain with website_sale.product -->
+    <record id="website_sale.alternative_products" model="ir.ui.view">
+        <field name="inherit_id" ref="product"/>
+    </record>
+
+    <template id="configure_optional_products" inherit_id="website_sale_product_configurator.configure_optional_products">
+        <xpath expr="//th[hasclass('text-center', 'td-qty')]" position="after">
+            <th class="text-center td-uom">
+                <span class="label">UoM</span>
+            </th>
+        </xpath>
+        <xpath expr="//td[hasclass('text-center', 'td-qty')]" position="after">
+            <td class="text-center td-uom">
+                <span t-esc="product.uom_id.name"/>
+            </td>
+        </xpath>
+        <xpath expr="//td[hasclass('td-img')]" position="replace">
+            <td class="td-img">
+                <img class="product_detail_img" style="max-width: 124px" t-att-src="product.url_image or '/product/static/img/placeholder_thumbnail.png'" alt="Product Image"/>
+            </td>
+        </xpath>
+    </template>
+
+    <template id="optional_product_items" inherit_id="website_sale_product_configurator.optional_product_items">
+        <xpath expr="//td[hasclass('td-img')]" position="replace">
+            <td class="td-img">
+                <input type="hidden" class="product_template_id" t-att-value="product.id"/>
+                <input type="hidden" class="product_id" t-attf-name="optional-product-#{product.id}" t-att-value="product_variant.id"/>
+                <img class="product_detail_img" style="max-width: 124px" t-att-src="product.url_image or '/product/static/img/placeholder_thumbnail.png'" alt="Product Image"/>
+            </td>
+        </xpath>
+    </template>
+
+    <template id="cart_lines" inherit_id="website_sale.cart_lines">
+        <xpath expr="//div[@name='website_sale_cart_line_price']" position="before">
+            <div class="mb-0 h6 fw-bold text-end" name="website_sale_cart_line_uom">
+                <span t-field="line.product_id.uom_id.name" class="text-muted"/>
+            </div>
+        </xpath>
+        <xpath expr="//a[hasclass('js_delete_product')]/.." position="before">
+            <t t-call="mapmedical_website_sale.product_customer_lead_time">
+                <t t-set="product" t-value="line.product_id"/>
+                <t t-set="apply_small" t-value="True"/>
+            </t>
+        </xpath>
+        <xpath expr="//div[@style='width: 64px']" position="replace">
+            <div style="width: 64px; height: 64px" class="d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0">
+                <!--
+                    Unsellable lines can have unpublished products, but portal users have no
+                    access to unpublished product images. To ensure product images are
+                    always shown for unsellable lines, we use the raw image data as src
+                    (which doesn't require access, unlike the image URL).
+                -->
+                <img t-att-src="line.product_id.url_image or '/product/static/img/placeholder_thumbnail.png'"
+                     class="o_image_64_cover img rounded w-100 h-100"
+                     t-att-alt="line.name_short"
+                />
+            </div>
+        </xpath>
+    </template>
+
+    <template id="checkout_layout" inherit_id="website_sale.checkout_layout">
+         <xpath expr="//div[@id='o_wsale_total_accordion_item']/div/button" position="attributes">
+            <attribute name="class" remove="collapsed" separator=" "/>
+        </xpath>
+        <xpath expr="//div[@id='o_wsale_accordion_item']" position="attributes">
+            <attribute name="class" add="show" separator=" "/>
+        </xpath>
+        <xpath expr="//td[@name='website_sale_cart_summary_product_name']" position="inside">
+            <div class="text-muted" name="website_sale_cart_summary_product_uom">
+                <strong><span t-field="line.product_uom.name"/></strong>
+            </div>
+        </xpath>
+        <xpath expr="//td[@t-attf-class='td-img ps-0 #{o_cart_sum_padding_top}']" position="replace">
+            <td t-attf-class="td-img ps-0 #{o_cart_sum_padding_top}">
+                <span>
+                    <img t-att-src="line.product_id.url_image or '/product/static/img/placeholder_thumbnail.png'" class="o_image_64_max img rounded" t-att-alt="line.name_short"/>
+                </span>
+            </td>
+        </xpath>
+    </template>
+
+    <template id="dynamic_filter_template_product_product_view_detail" inherit_id="website_sale.dynamic_filter_template_product_product_view_detail">
+        <div t-field="record.description_sale" position="after">
+            <t t-call="mapmedical_website_sale.product_customer_lead_time">
+                <t t-set="product" t-value="record"/>
+            </t>
+        </div>
+        <xpath expr="//img[hasclass('o_img_product_square')]" position="replace">
+            <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy" t-att-src="record.url_image or '/product/static/img/placeholder_thumbnail.png'" t-att-alt="record.display_name"/>
+        </xpath>
+    </template>
+
+    <template id="dynamic_filter_template_product_product_borderless_1" inherit_id="website_sale.dynamic_filter_template_product_product_borderless_1">
+        <xpath expr="//div[hasclass('h6', 'card-title')]" position="attributes">
+            <attribute name="class" add="d-none" separator=" "/>
+        </xpath>
+        <xpath expr="//div[hasclass('mt-2')]" position="before">
+            <div class="mb-auto" style="margin-bottom: 130px !important;">
+                <div class="h6 card-title" t-field="record.display_name"/>
+                <div class="card-text flex-grow-1 text-muted h8" t-field="record.description_sale"/>
+                <t t-call="mapmedical_website_sale.product_customer_lead_time">
+                    <t t-set="product" t-value="record"/>
+                </t>
+            </div>
+        </xpath>
+        <xpath expr="//img[hasclass('o_img_product_square')]" position="replace">
+            <img class="card-img-top o_img_product_square o_img_product_cover h-auto" loading="lazy" t-att-src="record.url_image or '/product/static/img/placeholder_thumbnail.png'" t-att-alt="record.display_name"/>
+        </xpath>
+        <xpath expr="//div[hasclass('mt-2')]" position="attributes">
+           <attribute name="class" add="d-flex mt-auto" separator=" "/>
+           <attribute name="style">margin-top: auto !important; position: absolute; bottom: 0; height: 120px; padding-bottom: 10px; background-color: white; width: 100%;</attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_carousel_product_card_body')]" position="attributes">
+           <attribute name="class" add="d-flex flex-column position-relative" separator=" "/>
+           <attribute name="style">height: 100%;</attribute>
+        </xpath>
+
+        <xpath expr="//div[hasclass('mt-2')]" position="inside">
+            <div style="font-size: 15px; margin-left: 10px; width: 200px;">
+                <span>Category:&#160;</span>
+                <div style="color: #49a685; height: 100px; overflow: hidden; line-height: 20px; word-break: break-word; white-space: normal; hyphens: auto;" t-field="record.categ_id"/>
+            </div>
+        </xpath>
+    </template>
+
+     <template id="alternative_products" inherit_id="website_sale.alternative_products">
+        <xpath expr="//div[hasclass('dynamic_snippet_template')]" position="before">
+            <div class="h4 mb-4">
+                <t t-out="request.env.company.alternative_products"/>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="custom_category_header" inherit_id="kw_seo_configuration.custom_category_header">
+        <xpath expr="//div[hasclass('custom_seo_text')]" position="attributes">
+            <attribute name="class" add="p-0" separator=" "/>
+        </xpath>
+    </template>
+
+    <template id="list_hybrid" inherit_id="website.list_hybrid">
+        <xpath expr="//div[@t-if='results']" position="replace">
+            <!-- Replace default rendering with bootstrap grid -->
+            <div t-if="results" class="row">
+                <div class="col-lg-2 col-12 order-2 order-lg-1 d-none d-lg-block">
+                    <t t-call="website_sale.products_categories_list">
+                        <t t-set="search" t-value="False"/>
+                    </t>
+                </div>
+                <div class="col-lg-10 col-12 order-1 order-lg-2">
+                    <div class="row">
+                        <div t-foreach="results" t-as="result" class="col col-sm-6 col-md-4 col-xl-3 mb-4">
+                            <t t-call="website.one_hybrid" t-key="result_index"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="one_hybrid" inherit_id="website.one_hybrid">
+        <!-- Replace search result layout with cards similar to website_sale.products_item -->
+        <xpath expr="//a[hasclass('dropdown-item')]" position="replace">
+            <a t-att-href="result.get('website_url')" class="oe_product_cart h-100 d-flex text-decoration-none border rounded">
+                <div class="oe_product_image position-relative h-100 flex-grow-0 overflow-hidden" style="height: unset !important;">
+                    <span class="oe_product_image_link d-block h-100 position-relative">
+                        <span class="oe_product_image_img_wrapper d-flex h-100 w-100 justify-content-center align-items-center position-absolute">
+                            <img t-if="result.get('image_url')" t-att-src="result.get('image_url')" class="h-100 w-100"/>
+                            <i t-else="" t-att-class="'text-center fa %s' % result.get('_fa')" style="font-size: 80px;"/>
+                        </span>
+                    </span>
+                </div>
+                <div class="o_wsale_product_information position-relative d-flex flex-column flex-grow-1 flex-shrink-1 p-2">
+                    <div class="o_wsale_product_information_text flex-grow-1">
+                        <h6 class="o_wsale_products_item_title mb-2">
+                            <span class="text-primary text-decoration-none" t-out="result['name']"/>
+                        </h6>
+                    </div>
+                    <div class="oe_subdescription mb-2 text-muted small" contenteditable="false">
+                        <t t-set="description" t-value="result.get('description')"/>
+                        <div t-out="description"/>
+                    </div>
+                    <div class="o_search_customer_lead_time" t-out="result.get('customer_lead_time')"/>
+                    <div class="o_wsale_product_sub d-flex justify-content-between align-items-end gap-2 flex-wrap pb-1">
+                        <div class="product_price">
+                            <t t-if="result.get('detail_strike')">
+                                <span class="text-danger text-nowrap" style="text-decoration: line-through;">
+                                    <t t-out="result.get('detail_strike')"/>
+                                </span>
+                                <br/>
+                            </t>
+                            <b t-if="result.get('detail')" class="text-nowrap">
+                                <t t-out="result.get('detail')"/>
+                            </b>
+                            <t t-if="result.get('detail_extra')">
+                                <br/>
+                                <span class="text-nowrap" t-out="result.get('detail_extra')"/>
+                            </t>
+                        </div>
+                        <div class="text-break">
+                            <t t-set="extra_link" t-value="result.get('extra_link_url') and result.get('extra_link')"/>
+                            <t t-set="extra_link_html" t-value="not result.get('extra_link_url') and result.get('extra_link')"/>
+                            <button t-if="extra_link"
+                                    class="extra_link btn btn-link btn-sm"
+                                    t-out="extra_link"
+                                    t-attf-onclick="location.href='#{result.get('extra_link_url')}';return false;"
+                            />
+                            <t t-if="extra_link_html" t-out="extra_link_html"/>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </xpath>
+    </template>
+
+    <template id="template_header_sales_two_inherit_website" inherit_id="website.template_header_sales_two">
+        <t t-call="website.placeholder_header_search_box" position="before">
+            <t t-call="website.placeholder_header_text_element" position="move"/>
+        </t>
+        <t t-call="website.placeholder_header_text_element" position="replace">
+            <t t-call="website.placeholder_header_text_element">
+                <t t-set="_txt_elt_content" t-valuef="mail_stretched"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="template_header_sales_two_inherit_website_sale" inherit_id="website_sale.template_header_sales_two">
+        <t t-set="_icon_wrap_class" position="attributes">
+            <attribute name="groups">!base.group_public</attribute>
+        </t>
+        <t t-set="_icon_wrap_class" position="after">
+            <t t-set="_icon_wrap_class" t-value="'position-relative rounded-circle border p-2 bg-o-color-3 o_border_contrast'" groups="base.group_public"/>
+        </t>
+    </template>
+
+    <template id="template_header_mobile" inherit_id="website.template_header_mobile">
+        <t t-call="website.placeholder_header_text_element" position="inside">
+            <t t-set="_txt_elt_content" t-valuef="mail_stretched"/>
+        </t>
+    </template>
+
+    <template id="categorie_link" inherit_id="website_sale.categorie_link">
+        <div position="replace">
+            <a t-att-href="'/brand/' + str(brand.website_url) + '?category=' + str(c.id)"
+                 t-att-data-link-href="'/brand/' + str(brand.website_url) + '?category=' + str(c.id)"
+                 class="form-check d-inline-block ps-4" t-if="brand"
+            >
+                <input type="radio"
+                       t-attf-name="wsale_categories_radios_{{parentCategoryId}}"
+                       class="form-check-input pe-none"
+                       t-att-id="c.id"
+                       t-att-value="c.id"
+                       t-att-checked="'true' if c.id == category.id else None"
+                />
+                <label class="form-check-label fw-normal" t-field="c.name" style="color: var(--body-color)"/>
+            </a>
+            <a t-att-href="keep('/' + c.custom_url.lower().replace('&amp;', '-').replace('(', '').replace(')', '').replace('%', '').replace('″', '').replace('½', '').replace('₂', '') + '-' + str(c.id), category=0)"
+                 t-att-data-link-href="keep('/' + c.custom_url.lower().replace('&amp;', '-').replace('(', '').replace(')', '').replace('%', '').replace('″', '').replace('½', '').replace('₂', '') + '-' + str(c.id), category=0)"
+                 class="form-check d-inline-block ps-4" t-if="not brand"
+            >
+                <input type="radio"
+                       t-attf-name="wsale_categories_radios_{{parentCategoryId}}"
+                       class="form-check-input pe-none"
+                       t-att-id="c.id"
+                       t-att-value="c.id"
+                       t-att-checked="'true' if c.id == category.id else None"
+                />
+                <label class="form-check-label fw-normal" t-field="c.name" style="color: var(--body-color)"/>
+            </a>
+        </div>
+    </template>
+
+    <template id="products_categories_list" inherit_id="website_sale.products_categories_list">
+        <xpath expr="//li/div" position="replace">
+            <a t-att-href="keep('/brand/' + str(brand.website_url), category=0)" t-att-data-link-href="keep('/brand/' + str(brand.website_url), category=0)" class="form-check d-inline-block ps-4" t-if="brand">
+                <input type="radio"
+                       t-attf-name="wsale_categories_radios{{_radioGroup}}"
+                       class="form-check-input pe-none o_not_editable"
+                       t-att-id="all_products"
+                       t-att-value="all_products"
+                       t-att-checked="'true' if not category else None"
+                />
+                <label class="form-check-label fw-normal" style="color: var(--body-color)" t-att-for="all_products">All Products</label>
+            </a>
+            <a t-att-href="keep('/shop', category=0)" t-att-data-link-href="keep('/shop', category=0)" class="form-check d-inline-block ps-4" t-if="not brand">
+                <input type="radio"
+                       t-attf-name="wsale_categories_radios{{_radioGroup}}"
+                       class="form-check-input pe-none o_not_editable"
+                       t-att-id="all_products"
+                       t-att-value="all_products"
+                       t-att-checked="'true' if not category else None"
+                />
+                <label class="form-check-label fw-normal" style="color: var(--body-color)" t-att-for="all_products">All Products</label>
+            </a>
+        </xpath>
+        <li position="attributes">
+            <attribute name="class" remove="mb-1" separator=" "/>
+        </li>
+    </template>
+
+    <template id="total" inherit_id="website_sale.total">
+        <tr id="order_total_taxes" position="attributes">
+            <attribute name="t-att-style">'display: none;' if not on_payment_step and website_sale_order.state != 'sale' and website_sale_order.is_tax_computed_externally else ''</attribute>
+        </tr>
+        <tr id="order_total" position="attributes">
+            <attribute name="t-att-style">'display: none;' if not on_payment_step and website_sale_order.state != 'sale' and website_sale_order.is_tax_computed_externally else ''</attribute>
+        </tr>
+    </template>
+
+    <template id="header_cart_link" inherit_id="website_sale.header_cart_link">
+        <span t-if="_text" position="attributes">
+            <attribute name="groups">!base.group_public</attribute>
+        </span>
+        <xpath expr="//li[2]" position="before">
+            <t t-set="disable_cart_link" t-value="True" groups="base.group_public"/>
+        </xpath>
+        <xpath expr="//li[2]" position="attributes">
+            <attribute name="t-attf-title">#{disable_cart_link and 'Log in or create an account to enter the cart'}</attribute>
+        </xpath>
+        <a href="/shop/cart" position="attributes">
+            <attribute name="t-attf-tabindex">#{disable_cart_link and -1}</attribute>
+            <attribute name="t-attf-class" add="#{disable_cart_link and 'pe-none o_cart_disabled'}" separator=" "/>
+            <attribute name="href"/>
+            <attribute name="t-att-href">'#' if disable_cart_link else '/shop/cart'</attribute>
+        </a>
+    </template>
+
+    <template id="bb_accreditation_seal" inherit_id="website.layout" name="BBB Accreditation Seal">
+        <xpath expr="//footer" position="after">
+            <div class="position-fixed bottom-0 end-0 me-3" style="z-index: 1030; width: 80px; margin-bottom: 80px;">
+                <a href=" https://www.bbb.org/us/il/rolling-meadows/profile/medical-supplies/map-medical-0654-1000115826" target="_blank">
+                    <img src="/mapmedical_website_sale/static/src/img/BBBA.svg" alt="" class="img img-fluid bg-white rounded-3"/>
+                </a>
+                <a href="https://www.vizientinc.com/" target="_blank">
+                    <img src="/mapmedical_website_sale/static/src/img/vizient.jpg" alt="" class="img img-fluid mt-2"/>
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="product_custom_text" inherit_id="website_sale.product_custom_text" name="How Can We Help?">
+        <xpath expr="//div[@id='o_product_terms_and_share']" position="after">
+            <div style="border-top: 1px solid #CED4DA;">
+                <span class="text-o-color-5 d-inline-block" style="margin-top: -30px">
+                    <span class="h4-fs fw-bold">
+                        <br/>How Can We&amp;nbsp;Help?
+                    </span>
+                </span>
+                <span class="text-o-color-5 d-inline-block">Fast answers on bulk discounts, same-day shipping, and other questions for our team
+                    <br/>
+                </span>
+                <a class="border o_translate_inline btn btn-custom text-o-color-1 bg-o-color-5 rounded-circle btn-lg"
+                   href="#Let-Us-Know-How-We-Can-Assist"
+                   style="margin-top: 5px">Request Product Info
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="payment_form" inherit_id="payment.form">
+        <xpath expr="//div[@id='o_payment_methods']" position="inside">
+            <p class="mt-4">
+                <strong>Bank Wire / ACH:</strong>
+                Please email <a href="mailto:sales@mymapmedical.com">sales@mymapmedical.com</a>
+                or call 312-633-4999 and one of our dedicated sales managers will provide you with our banking details and assist
+                with processing your order
+            </p>
+            <p class="mt-4">
+                <strong>Purchase Order</strong>
+                Please email your PO to <a href="mailto:sales@mymapmedical.com">sales@mymapmedical.com</a>
+                or call 312-633-4999 for Net terms order submission &amp; processing
+            </p>
+        </xpath>
+    </template>
+
+    <!-- Remove Schema.org microdata from website_sale templates -->
+    <template id="product_no_schema" inherit_id="website_sale.product">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="itemscope"/>
+            <attribute name="itemtype"/>
+        </xpath>
+        <xpath expr="//h1[@itemprop='name']" position="attributes">
+            <attribute name="itemprop"/>
+        </xpath>
+        <xpath expr="//div[@itemprop='description']" position="attributes">
+            <attribute name="itemprop"/>
+        </xpath>
+        <xpath expr="//span[@itemprop='url']" position="replace"/>
+        <xpath expr="//span[@itemprop='image']" position="replace"/>
+    </template>
+
+    <template id="product_price_no_schema" inherit_id="website_sale.product_price">
+        <xpath expr="//div[@itemprop='offers']" position="attributes">
+            <attribute name="itemprop"/>
+            <attribute name="itemscope"/>
+            <attribute name="itemtype"/>
+        </xpath>
+        <xpath expr="//span[@itemprop='price']" position="replace"/>
+        <xpath expr="//span[@itemprop='priceCurrency']" position="replace"/>
+        <xpath expr="//span[@itemprop='listPrice']" position="attributes">
+            <attribute name="itemprop"/>
+        </xpath>
+    </template>
+
+    <!-- Remove category parameter from product links -->
+    <template id="products_item_clean_urls" inherit_id="website_sale.products_item" name="Clean Product URLs">
+        <!-- Replace product_href creation to exclude category parameter -->
+        <xpath expr="//t[@t-set='product_href']" position="replace">
+            <t t-set="product_href" t-value="product.website_url" />
+        </xpath>
+    </template>
+
+    <!-- On brand pages, filter category children to only those that have
+         brand products (via search_categories_ids set by the controller).
+         Without this, the recursive template expands ALL child categories. -->
+    <template id="option_collapse_categories_recursive_brand"
+              inherit_id="website_sale.option_collapse_categories_recursive">
+        <xpath expr="//t[@t-set='children']" position="replace">
+            <t t-set="children" t-value="(not search and not brand) and c.child_id or c.child_id.filtered(lambda c: c.id in search_categories_ids)"/>
+        </xpath>
+    </template>
+
+</odoo>

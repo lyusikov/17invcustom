@@ -1,0 +1,167 @@
+.o_product_category_snippet_root {
+    background-color: white !important;
+    width: fit-content;
+    min-width: 18rem !important;
+    border-radius: 1.5rem !important;
+    border: 1px solid #18181B12 !important;
+    padding: 0.1875rem 0.1875rem 1rem 0.1875rem !important;
+    box-shadow: 0px 9px 44px 8px #0F4C6F0D,
+                0px 3px 6px -4px #0F4C6F1F,
+                0px 6px 32px 0px #0F4C6F14
+                !important;
+
+    .title {
+        border-radius: 1.3125rem 1.3125rem 0 0 !important;
+        color: #34F4C1 !important;
+        background-color: #001D3D !important;
+        padding: 0.75rem 1rem 0.75rem 1rem !important;
+
+        h4 {
+            font-family: 'Montserrat' !important;
+            font-weight: 600 !important;
+            font-size: 20px !important;
+            line-height: 28px !important;
+            letter-spacing: 0 !important;
+            width: fit-content;
+        }
+    }
+}
+
+.o_subcategories_root {
+    margin-left: 5px;
+    height: min-content;
+    width: fit-content !important;
+    min-width: 11.25rem !important;
+    border-radius: 0.5rem !important;
+    background-color: white !important;
+    box-shadow: 0px 9px 28px 8px #0000000D,
+                0px 3px 6px -4px #0000001F,
+                0px 6px 16px 0px #00000014
+                !important;
+    padding: 0.1875rem 0.25rem 0.1875rem 0.25rem;
+}
+
+@mixin category-data {
+    gap: 0.625rem !important;
+    color: #001D3D !important;
+    font-family: 'Montserrat' !important;
+    font-weight: 400 !important;
+    font-size: 16px !important;
+    letter-spacing: 0 !important;
+    border-radius: 0.25rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.o_product_category_snippet_root div.o_category {
+    @include category-data;
+    height: 35px !important;
+    line-height: 24px !important;
+    i {
+        font-size: 9px !important;
+    }
+}
+.o_subcategories_root a.o_subcategory {
+    @include category-data;
+    min-height: 40px !important;
+    line-height: 20px !important;
+    padding-top: 5px;
+    padding-bottom: 5px;
+
+    a {
+        width: max-content;
+        text-align: center;
+    }
+}
+
+.o_product_category_snippet_root div.o_category:hover,
+.o_subcategories_root a.o_subcategory:hover,
+.o_product_category_snippet_root div.o_category.o_category_active {
+    background-color: #18181B0F !important;
+    color: #18181B !important;
+}
+
+ul .o_cart_disabled i {
+    color: gray;
+}
+
+
+ul:not(.o_header_mobile_buttons_wrap) .o_cart_disabled > div {
+    background-color: #c8c8c8 !important;
+}
+
+@media (max-width: 576px) {
+  .o_header_mobile .o_main_nav {
+    align-items: center; /* vertically center logo and buttons */
+    flex-wrap: nowrap !important; /* keep logo and buttons on one line */
+  }
+  .o_header_mobile .o_header_mobile_buttons_wrap {
+    margin-left: auto;    /* push to the right */
+    flex-wrap: nowrap;    /* avoid wrapping to next line */
+  }
+  .o_header_mobile .navbar-brand {
+    flex: 0 1 auto; /* allow logo to shrink slightly if needed */
+    min-width: 0;   /* prevent overflow when text inside scales */
+  }
+}
+
+/* Search results */
+.o_search_customer_lead_time {
+  min-height: 21px; /* baseline height like before, but can grow if wraps */
+  margin-bottom: .25rem;
+}
+
+/* Align Category row flush left under price on cards/search */
+.oe_product_cart .o_wsale_product_sub .text-break {
+  width: 100%;
+  text-align: left;
+  margin-top: .25rem;
+  display: block; /* label and value on separate lines */
+}
+.oe_product_cart .o_wsale_product_sub .text-break .btn {
+  display: block;
+  padding: 0;
+  margin: 0;
+  line-height: 1.25;
+  text-align: left;
+}
+.oe_product_cart .o_wsale_product_sub .text-break .btn + .btn { margin-top: .125rem; }
+
+/* Normalize image height in product/search cards to keep price rows aligned */
+.oe_product_cart .oe_product_image { height: 160px !important; }
+.oe_product_cart .oe_product_image_link { height: 100% !important; }
+.oe_product_cart .oe_product_image_img_wrapper,
+.oe_product_cart .oe_product_image_img_wrapper img {
+  height: 100% !important;
+  width: 100% !important;
+  object-fit: cover;
+}
+
+@media (max-width: 576px) {
+  .s_allow_columns .o_grid_mode .o_grid_item h3 + p {
+    margin-top: .25rem;
+    margin-bottom: .25rem;
+  }
+  /* Any paragraph following a heading inside grid item gets compact top margin */
+  .s_allow_columns .o_grid_mode .o_grid_item h3 ~ p {
+    margin-top: .25rem;
+  }
+  /* Collapse space for empty paragraphs used as spacers */
+  .s_allow_columns .o_grid_mode .o_grid_item p:has(> br:only-child) {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0;
+    height: 0;
+  }
+  /* As a fallback, hide the lone BR inside such spacers to fully collapse */
+  .s_allow_columns .o_grid_mode .o_grid_item p > br:only-child { display: none; }
+  /* Normalize heading margins and collapse empty headings inserted by editor */
+  .s_allow_columns .o_grid_mode .o_grid_item h3 {
+    margin-bottom: .5rem;
+  }
+  .s_allow_columns .o_grid_mode .o_grid_item h3:has(> br:only-child),
+  .s_allow_columns .o_grid_mode .o_grid_item h3:empty {
+    margin: 0;
+    line-height: 0;
+  }
+}

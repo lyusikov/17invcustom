@@ -1,0 +1,37 @@
+<odoo>
+    <template id="snippets" inherit_id="website.snippets">
+        <xpath expr="//div[@id='snippet_content']/div[hasclass('o_panel_body')]"
+               position="inside"
+        >
+            <t t-snippet="mapmedical_website_sale.product_category_snippet"/>
+        </xpath>
+    </template>
+
+    <template id="product_category_snippet" name="Product Category Snippet">
+        <section class="product_category_snippet_section">
+            <div class="d-flex" data-name="Block">
+                <div class="o_product_category_snippet_root">
+                    <div class="title">
+                        <h4 class="m-0">Search by Category</h4>
+                    </div>
+                    <div class="o_categories_items"/>
+                </div>
+                <div class="o_subcategories_root d-none overflow-hidden">
+                    <div class="o_subcategories_items overflow-auto"/>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="snippet_options"
+              inherit_id="website.snippet_options"
+    >
+        <xpath expr="." position="inside">
+            <div data-selector=".product_category_snippet_section"
+                 t-attf-data-drop-near="h1, h3, ul, ol, .row > div:not(.o_grid_item_image) > img"
+                 data-drop-in=".content, nav"
+            />
+        </xpath>
+    </template>
+
+</odoo>

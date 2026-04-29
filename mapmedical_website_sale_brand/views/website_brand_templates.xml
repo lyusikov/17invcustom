@@ -1,0 +1,394 @@
+<odoo>
+    <template id="brands_page" name="Brands Page">
+        <t t-call="website.layout">
+            <t t-set="pageName" t-value="'brands'"/>
+            <t t-set="additional_title">Mapmedical Brands</t>
+            <div id="wrap" class="js_brands website_brands">
+                <div class="oe_structure oe_empty" id="oe_structure_brands_top"/>
+                <section class="s_table_of_content pt32 pb32" data-snippet="s_table_of_content" data-name="Table of Content">
+                <div class="container">
+                    <div class="row s_nb_column_fixed">
+                    <div class="s_table_of_content_navbar_wrap d-print-none o_not_editable o_colored_level s_table_of_content_navbar_sticky o_cc o_cc1 pb16 pt24 s_table_of_content_horizontal_navbar col-lg-11 offset-lg-1 bg-white" data-name="Navbar">
+                        <div class="s_table_of_content_navbar list-group o_no_link_popover list-group-horizontal-md">
+                            <t t-foreach="sorted_letters" t-as="letter" >
+                                <t t-set="letter_anchor" t-value="'table_of_content_heading_1_' + letter"/>
+                                <t t-set="display_letter" t-value="'#' if letter == 'other' else letter"/>
+                                <a t-att-href="'#' + letter_anchor"
+                                   t-out="display_letter"
+                                   class="table_of_content_link list-group-item list-group-item-action py-2 border-0 rounded-0"
+                                   style="padding-left: 10px; padding-right: 10px;"
+                                />
+                            </t>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <section>
+                            <t t-out="brands_html"/>
+                        </section>
+                    </div>
+                    </div>
+                </div>
+                </section>
+                <div class="oe_structure oe_empty" id="oe_structure_brands_bottom"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- Brands Filter Widget -->
+    <template id="brands_filter_widget" name="Brands Filter Widget">
+        <div class="products_brands mb-3">
+            <h6 t-if="not isMobile" class="o_categories_collapse_title mb-3"><b>Featured Brands</b></h6>
+            <form method="get" class="js_brands_filter">
+                <!-- Preserve other URL parameters -->
+                <input type="hidden" name="search" t-att-value="search or ''"/>
+                <input type="hidden" name="category" t-att-value="category.id if category else ''"/>
+                <input type="hidden" name="min_price" t-att-value="min_price or ''"/>
+                <input type="hidden" name="max_price" t-att-value="max_price or ''"/>
+                <t t-foreach="attrib_values or []" t-as="attrib_value">
+                    <input type="hidden" name="attrib" t-att-value="'-'.join(str(x) for x in attrib_value)"/>
+                </t>
+                <t t-if="tags">
+                    <t t-foreach="tags" t-as="tag">
+                        <input type="hidden" name="tags" t-att-value="tag"/>
+                    </t>
+                </t>
+
+                <!-- Temporary brands (selected but not in widget) -->
+                <t t-if="temp_brands">
+                    <div class="mb-2">
+                        <small class="text-muted">Selected:</small>
+                        <t t-foreach="temp_brands" t-as="brand">
+                            <div class="form-check">
+                                <input class="form-check-input js_brand_checkbox"
+                                       type="checkbox"
+                                       name="brands"
+                                       t-att-value="brand.id"
+                                       t-att-id="'brand_temp_' + str(brand.id)"
+                                       checked="checked"
+                                />
+                                <label class="form-check-label fw-normal"
+                                       style="color: var(--body-color)"
+                                       t-att-for="'brand_temp_' + str(brand.id)"
+                                       t-out="brand.name"/>
+                            </div>
+                        </t>
+                        <hr class="my-2"/>
+                    </div>
+                </t>
+
+                <!-- Published brands widget -->
+                <t t-foreach="published_brands" t-as="brand">
+                    <div class="form-check">
+                        <input class="form-check-input js_brand_checkbox"
+                               type="checkbox"
+                               name="brands"
+                               t-att-value="brand.id"
+                               t-att-id="'brand_' + str(brand.id)"
+                               t-att-checked="'checked' if brand.id in selected_brand_ids else None"
+                        />
+                        <label class="form-check-label fw-normal"
+                               style="color: var(--body-color)"
+                               t-att-for="'brand_' + str(brand.id)"
+                               t-out="brand.name"
+                        />
+                    </div>
+                </t>
+                <div class="mt-3">
+                    <a href="/brands" class="btn btn-link btn-sm p-0">
+                        <i class="fa fa-external-link me-1"/>
+                        View All Brands
+                    </a>
+                </div>
+            </form>
+        </div>
+    </template>
+
+    <!-- Extend main products template to include brands widget -->
+    <template id="products_brands_filter" inherit_id="website_sale.products" name="Add Brands Filter">
+        <xpath expr="//div[hasclass('products_attributes_filters')]" position="before">
+            <t t-if="brands_widget_enabled and (published_brands or temp_brands) and not brand"
+               t-call="mapmedical_website_sale_brand.brands_filter_widget"
+            />
+        </xpath>
+    </template>
+
+    <template id="website_sale.sort" name="Sort-by Template">
+        <div t-attf-class="o_sortby_dropdown dropdown dropdown_sorty_by {{_classes}}">
+            <small class="d-none d-lg-inline text-muted">Sort By:</small>
+            <a role="button" href="#" t-attf-class="dropdown-toggle btn btn-{{navClass}}" data-bs-toggle="dropdown">
+                <span class="d-none d-lg-inline">
+                    <t t-if="isSortingBy" t-out="isSortingBy[0][1]"/>
+                    <span t-else="1" t-field="website.shop_default_sort"/>
+                </span>
+                <i class="fa fa-sort-amount-asc d-lg-none"/>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end" role="menu">
+                <t t-foreach="website_sale_sortable" t-as="sortby">
+                    <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/brand/' + str(brand.website_url), order=sortby[0])" class="dropdown-item" t-if="brand">
+                        <span t-out="sortby[1]"/>
+                    </a>
+                    <a role="menuitem" rel="noindex,nofollow" t-att-href="keep('/shop', order=sortby[0])" class="dropdown-item" t-if="not brand">
+                        <span t-out="sortby[1]"/>
+                    </a>
+                </t>
+            </div>
+        </div>
+    </template>
+
+
+    <!-- Update hasLeftColumn condition to include brands -->
+    <template id="products_left_column_brands" inherit_id="website_sale.products" name="Include Brands in Left Column">
+        <xpath expr="//t[@t-set='hasLeftColumn']" position="replace">
+            <t t-set="hasLeftColumn" t-value="opt_wsale_categories or opt_wsale_attributes or (brands_widget_enabled and (published_brands or temp_brands))"/>
+        </xpath>
+    </template>
+
+    <!-- Brands Mega Menu Content Template -->
+    <template id="brands_mega_menu_content" name="Brands Mega Menu Content">
+        <!-- Brand Columns with Dynamic Distribution -->
+        <t t-foreach="brand_columns" t-as="column_brands">
+            <div class="py-2 text-center o_colored_level o_grid_item g-col-lg-3 col-lg-3"
+                 t-att-data-max-column-size="max_column_size or 0">
+                <!-- Top separator -->
+                <div class="s_hr text-start pb32 pt0">
+                    <hr class="w-100 mx-auto" style="border-top: 1px solid rgb(52, 244, 193);"/>
+                </div>
+
+                <!-- Brand links -->
+                <div class="brands-column-content">
+                    <t t-foreach="column_brands" t-as="brand">
+                        <a t-att-href="'/brand/' + str(brand.website_url)"
+                           class="text-o-color-5 text-decoration-none d-block mb-2"
+                           t-att-title="brand.name"
+                           t-out="brand.name"
+                        />
+                    </t>
+                </div>
+
+                <!-- Bottom separator -->
+                <div class="s_hr text-start pb32 pt0">
+                    <hr class="w-100 mx-auto" style="border-top: 1px solid rgb(52, 244, 193);"/>
+                </div>
+            </div>
+        </t>
+
+        <!-- Fixed Buttons Row -->
+        <div class="col-12">
+            <div class="row">
+                <div class="col-lg-3 text-center">
+                    <p>
+                        <a class="btn btn-custom text-o-color-1 bg-o-color-5 rounded-circle btn-lg" href="/shop">
+                            Shop All Brands
+                        </a>
+                    </p>
+                </div>
+                <div class="col-lg-3"/>
+                <div class="col-lg-3"/>
+                <div class="col-lg-3 text-center">
+                    <p>
+                        <a class="btn btn-custom text-o-color-1 bg-o-color-5 rounded-circle btn-lg" href="/brands">
+                            View All Brands
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <template id="o_wsale_offcanvas" inherit_id="website_sale.o_wsale_offcanvas">
+        <xpath expr="//div[@id='o_wsale_offcanvas_categories']/.." position="after">
+            <div t-if="brands_widget_enabled and (published_brands or temp_brands) and not brand" class="accordion-item">
+                <h2 class="accordion-header mb-0" id="o_wsale_offcanvas_brands_header">
+                    <button class="o_wsale_offcanvas_title accordion-button rounded-0 collapsed"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#o_wsale_offcanvas_brands"
+                            aria-expanded="false"
+                            aria-controls="o_wsale_offcanvas_brands"
+                    >
+                        <b>Featured Brands</b>
+                    </button>
+                </h2>
+                <div id="o_wsale_offcanvas_brands"
+                     class="accordion-collapse collapse"
+                     aria-labelledby="o_wsale_offcanvas_brands_header"
+                >
+                    <div class="accordion-body pt-0">
+                        <t t-call="mapmedical_website_sale_brand.brands_filter_widget">
+                            <t t-set="isMobile" t-value="true"/>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='o_wsale_offcanvas_orderby']" position="replace">
+            <div id="o_wsale_offcanvas_orderby"
+                    class="accordion-collapse collapse"
+                    aria-labelledby="o_wsale_offcanvas_orderby_header">
+                <div class="accordion-body pt-0">
+                    <div class="list-group list-group-flush">
+                        <a t-foreach="website_sale_sortable" t-as="sortby"
+                            t-if="not brand"
+                            role="menuitem"
+                            rel="noindex,nofollow"
+                            t-att-href="keep('/shop', order=sortby[0])"
+                            class="list-group-item border-0 ps-0 pb-0">
+                            <div class="form-check d-inline-block">
+                                <input type="radio"
+                                        t-attf-onclick="location.href='#{keep('/shop', order=sortby[0])}';"
+                                        class="form-check-input o_not_editable"
+                                        name="wsale_sortby_radios_offcanvas"
+                                        t-att-checked="isSortingBy and isSortingBy == sortby[1]"
+                                >
+                                    <label class="form-check-label fw-normal" t-out="sortby[1]"/>
+                                </input>
+                            </div>
+                        </a>
+                        <a t-foreach="website_sale_sortable" t-as="sortby"
+                            t-if="brand"
+                            role="menuitem"
+                            rel="noindex,nofollow"
+                            t-att-href="keep('/brand/' + str(brand.website_url), order=sortby[0])"
+                            class="list-group-item border-0 ps-0 pb-0">
+                            <div class="form-check d-inline-block">
+                                <input type="radio"
+                                        t-attf-onclick="location.href='#{keep('/brand/' + str(brand.website_url), order=sortby[0])}';"
+                                        class="form-check-input o_not_editable"
+                                        name="wsale_sortby_radios_offcanvas"
+                                        t-att-checked="isSortingBy and isSortingBy == sortby[1]"
+                                >
+                                    <label class="form-check-label fw-normal" t-out="sortby[1]"/>
+                                </input>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[a[normalize-space()='Clear Filters']]" position="replace">
+            <div class="offcanvas-body d-flex justify-content-between flex-grow-0 border-top overflow-hidden">
+                <a t-attf-class="btn btn-{{navClass}} d-flex py-1 mb-2 {{(not attrib_values and not isFilteringByPrice and not tags) and 'disabled' }}"
+                   t-att-aria-disabled="(not attrib_values and not isFilteringByPrice and not tags) and 'true' or 'false'"
+                   href="/shop"
+                   t-if="not brand"
+                   title="Clear Filters">
+                    Clear Filters
+                </a>
+                <a t-attf-class="btn btn-{{navClass}} d-flex py-1 mb-2 {{(not attrib_values and not isFilteringByPrice and not tags) and 'disabled' }}"
+                   t-att-aria-disabled="(not attrib_values and not isFilteringByPrice and not tags) and 'true' or 'false'"
+                   t-att-href="'/brand/' + str(brand.website_url)"
+                   t-if="brand"
+                   title="Clear Filters">
+                    Clear Filters
+                </a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Brand Description Blocks -->
+    <template id="products" inherit_id="website_sale.products" name="Brand Descriptions">
+        <xpath expr="//div[@id='products_grid']//div[hasclass('products_header')]" position="before">
+            <div t-if="brand and (page or 0) &lt;= 0">
+                <t t-set="additional_title" t-value="brand.seo_title"/>
+                <meta name="default_title" t-att-content="brand.seo_title"/>
+                <meta name="description" t-att-content="brand.seo_description"/>
+                <meta name="meta_keywords" t-att-content="brand.seo_header"/>
+                <div class="s_allow_columns container">
+                    <div class="row mt-4" id="brand_detail_main" data-name="Brand Page">
+                        <h1 itemprop="name" t-field="brand.name">Brand Name</h1>
+                        <div t-field="brand.description_top" class="oe_structure"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='products_grid']//div[hasclass('products_header')]" position="after">
+            <div t-if="show_brand_description and selected_brand and selected_brand.description_top" class="brand_description_top text-left">
+                <t t-out="selected_brand.description_top"/>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='products_grid']//div[hasclass('products_pager')]" position="after">
+            <div class="s_allow_columns container" t-if="brand and (page or 0) &lt;= 0">
+                <div itemprop="description" t-field="brand.description_bottom" class="oe_structure oe_empty mt16" id="brand_full_description"/>
+            </div>
+        </xpath>
+    </template>
+
+
+    <template id="brands" name="Brands" track="1">
+        <t t-set="navClass" t-value="light"/>
+        <t t-call="website.layout">
+            <t t-set="additional_title" t-value="brand.seo_title"/>
+            <meta name="description" t-att-content="brand.seo_description"/>
+            <meta name="meta_keywords" t-att-content="brand.seo_header"/>
+            <div itemscope="itemscope" itemtype="http://schema.org/Brand" id="wrap" class="js_sale o_wsale_product_page">
+                <div class="oe_structure oe_empty oe_structure_not_nearest" id="oe_structure_website_sale_brand_1" data-editor-message="DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL BRANDS"/>
+                <section id="brand_detail"
+                         t-att-data-view-track="view_track and '1' or '0'"
+                >
+                    <div class="s_allow_columns container">
+                        <div class="row mt-4" id="brand_detail_main" data-name="Brand Page">
+                                <h1 itemprop="name" t-field="brand.name">Brand Name</h1>
+                                <div t-field="brand.description_top" class="oe_structure"/>
+                            </div>
+                        <div itemprop="description" t-field="brand.description_bottom" class="oe_structure oe_empty mt16" id="brand_full_description"/>
+                    </div>
+                <div class="container">
+                    <div class="row mt-4">
+                        <t t-if="products">
+                            <t t-foreach="products" t-as="product_id">
+                                <div class="col-6 col-md-2 col-lg-2 mb-3">
+                                    <t t-set="product" t-value="product_id"/>
+                                    <t t-set="product_href" t-value="product.website_url"/>
+
+                                    <div id="products_grid">
+                                        <form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
+                                            t-att-data-publish="product.website_published and 'on' or 'off'"
+                                            itemscope="itemscope" itemtype="http://schema.org/Product">
+                                            <div class="oe_product_image position-relative flex-grow-0 overflow-hidden">
+                                                <a t-att-href="product_href" class="oe_product_image_link d-block position-relative" itemprop="url" contenteditable="false">
+                                                    <t t-set="image_holder" t-value="product._get_image_holder()"/>
+                                                    <span t-field="product.url_image"
+                                                        t-options="{'widget': 'image_url', 'class': 'h-100 w-100 position-absolute'}"
+                                                        t-attf-class="oe_product_image_img_wrapper d-flex h-100 justify-content-center align-items-center position-absolute #{not product.url_image and 'd-none'}"
+                                                    />
+                                                    <!-- OOTB !thumbnail! otherwise -->
+                                                    <span class="oe_product_image_img_wrapper d-flex h-100 justify-content-center align-items-center position-absolute">
+                                                        <img src="/product/static/img/placeholder_thumbnail.png"
+                                                            t-attf-class="h-100 w-100 position-absolute #{product.url_image and 'd-none'}"
+                                                        />
+                                                    </span>
+                                                </a>
+                                            </div>
+                                            <div class="o_wsale_product_information position-relative d-flex flex-column flex-grow-1 flex-shrink-1">
+                                                <div class="o_wsale_product_information_text flex-grow-1">
+                                                    <h6 class="o_wsale_products_item_title mb-2">
+                                                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="product_href" t-att-content="product.name" t-field="product.name" />
+                                                        <a t-if="not product.website_published" role="button" t-att-href="product_href" class="btn btn-sm btn-danger" title="This product is unpublished.">
+                                                            Unpublished
+                                                        </a>
+                                                    </h6>
+                                                </div>
+                                                <div class="o_wsale_product_sub d-flex justify-content-between align-items-end gap-2 flex-wrap pb-1">
+                                                    <div class="o_wsale_product_btn"/>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </t>
+                        </t>
+                        <t t-if="not products">
+                            <p>No products found for this brand.</p>
+                        </t>
+                    </div>
+                </div>
+                <div class="s_allow_columns container">
+                    <div itemprop="description" t-field="brand.description_bottom" class="oe_structure oe_empty mt16" id="brand_full_description"/>
+                </div>
+                </section>
+                <div class="oe_structure oe_empty oe_structure_not_nearest mt16" id="oe_structure_website_sale_brand_2" data-editor-message="DROP BUILDING BLOCKS HERE TO MAKE THEM AVAILABLE ACROSS ALL BRANDS"/>
+            </div>
+        </t>
+    </template>
+
+</odoo>

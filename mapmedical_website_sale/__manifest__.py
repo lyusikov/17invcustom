@@ -1,0 +1,42 @@
+{
+    "name": "Map-Medical Website Sale",
+    "version": "17.0.0.2.0",
+    "category": "Hidden",
+    "description": """Map-Medical Website Sale""",
+    "depends": [
+        "website",
+        "website_sale",
+        "website_sale_product_configurator",
+        "delivery",
+        "mapmedical_base",
+        "mapmedical_sale_stock",
+        "mapmedical_sale_stock_notes",
+        "mapmedical_product",
+        "kw_seo_configuration",
+    ],
+    "data": [
+        "views/res_config_settings_views.xml",
+        "views/delivery_carrier_views.xml",
+        "views/product_template_views.xml",
+        "views/product_product_views.xml",
+        "views/templates.xml",
+        "views/snippets/website_category_snippet_views.xml",
+        "views/snippets/s_website_form.xml",
+    ],
+    "assets": {
+        "web.assets_frontend": [
+            "mapmedical_website_sale/static/src/js/website_sale.js",
+            "mapmedical_website_sale/static/src/js/website_category_snippet.js",
+            "mapmedical_website_sale/static/src/js/product_configurator_modal.js",
+            "mapmedical_website_sale/static/src/xml/*.xml",
+            "mapmedical_website_sale/static/src/scss/website.scss",
+            "mapmedical_website_sale/static/src/scss/cart.scss",
+        ],
+        "web.assets_tests": [
+            "mapmedical_website_sale/static/tests/tours/*.js",
+        ],
+    },
+    "author": "Map-Medical",
+    "maintainer": ["Itransition"],
+    "license": "LGPL-3",
+}

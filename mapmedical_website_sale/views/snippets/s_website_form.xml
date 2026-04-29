@@ -1,0 +1,16 @@
+<odoo>
+    <template id="s_website_form_options" inherit_id="website.s_website_form_options">
+        <div data-js="WebsiteFormSubmit" position="after">
+            <div data-js="WebsiteFormSubmit" data-selector=".s_website_form_send" data-exclude=".s_website_form_no_submit_options">
+                <we-select string="Button Width">
+                    <we-button data-select-class="">Default</we-button>
+                    <we-button data-select-class="w-25">25%</we-button>
+                    <we-button data-select-class="w-50">50%</we-button>
+                    <we-button data-select-class="w-75">75%</we-button>
+                    <we-button data-select-class="w-100">100%</we-button>
+                </we-select>
+            </div>
+        </div>
+    </template>
+
+</odoo>

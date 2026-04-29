@@ -1,0 +1,12 @@
+<odoo>
+    <record id="product_product_website_tree_view" model="ir.ui.view">
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="website_sale.product_product_website_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="website_id" position="after">
+                <field name="description_sale" optional="show"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

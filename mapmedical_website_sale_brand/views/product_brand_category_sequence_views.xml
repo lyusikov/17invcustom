@@ -1,0 +1,27 @@
+<odoo>
+    <record id="product_brand_category_sequence_view_tree" model="ir.ui.view">
+        <field name="model">product.brand.category.sequence</field>
+        <field name="arch" type="xml">
+            <tree string="sequence">
+                <field name="product_tmpl_id"/>
+                <field name="manufacturer_id"/>
+                <field name="public_categ_id"/>
+                <field name="sequence"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="product_brand_category_sequence_action" model="ir.actions.act_window">
+        <field name="name">Product Sequences</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.brand.category.sequence</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_product_brand_category_sequence"
+              name="Product Sequences"
+              parent="sale.product_menu_catalog"
+              action="product_brand_category_sequence_action"
+              sequence="11"
+    />
+</odoo>

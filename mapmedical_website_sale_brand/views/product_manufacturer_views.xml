@@ -1,0 +1,40 @@
+<odoo>
+    <record id="product_manufacturer_view_tree" model="ir.ui.view">
+        <field name="model">product.manufacturer</field>
+        <field name="inherit_id" ref="mapmedical_sale_stock.product_manufacturer_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="sequence" widget="handle"/>
+            </field>
+            <field name="name" position="after">
+                <field name="is_published"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="product_manufacturer_view_form" model="ir.ui.view">
+        <field name="model">product.manufacturer</field>
+        <field name="inherit_id" ref="mapmedical_sale_stock.product_manufacturer_view_form"/>
+        <field name="arch" type="xml">
+            <field name="tag_ids" position="after">
+                <field name="is_published"/>
+                <field name="sequence"/>
+                <field name="website_url"/>
+                <field name="seo_title"/>
+                <field name="seo_description"/>
+                <field name="seo_header"/>
+            </field>
+            <group position="after">
+                <notebook>
+                    <page string="Top Description" name="description_top">
+                        <field name="description_top" widget="html" options="{'style-inline': true}"/>
+                    </page>
+                    <page string="Bottom Description" name="description_bottom">
+                        <field name="description_bottom" widget="html" options="{'style-inline': true}"/>
+                    </page>
+                </notebook>
+            </group>
+        </field>
+    </record>
+
+</odoo>

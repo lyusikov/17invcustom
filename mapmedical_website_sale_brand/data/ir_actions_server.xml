@@ -1,0 +1,10 @@
+<odoo>
+    <record id="product_manufacturer_action_lower_website_url" model="ir.actions.server">
+        <field name="name">Manufacturer: Lower Website URL</field>
+        <field name="model_id" ref="mapmedical_sale_stock.model_product_manufacturer"/>
+        <field name="state">code</field>
+        <field name="code">records.lower_website_url()</field>
+        <field name="usage">base_automation</field>
+    </record>
+
+</odoo>

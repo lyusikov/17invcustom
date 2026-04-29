@@ -1,0 +1,21 @@
+.website_brands h2[data-anchor="true"] {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.website_brands h2[data-anchor="true"]:first-of-type {
+    margin-top: 0 !important;
+}
+
+/* Mobile multi-column balancing for brands list */
+@media (max-width: 576px) {
+    .brands-columns-mobile {
+        column-count: 2;
+        column-gap: 1.25rem;
+    }
+    .brands-columns-mobile .brand-item {
+        break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}

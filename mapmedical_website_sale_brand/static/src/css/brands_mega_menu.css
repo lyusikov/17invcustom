@@ -1,0 +1,201 @@
+/* Brands Mega Menu Styles */
+.mega-menu-brands {
+    min-width: 800px;
+    max-width: 1000px;
+}
+
+/* Center the mega menu dropdown */
+.mega-menu-brands .dropdown-menu,
+.navbar-nav .dropdown.mega-menu-brands .dropdown-menu,
+.o_mega_menu.mega-menu-brands {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+}
+
+/* Brand links styling */
+#brands-mega-menu-content .text-o-color-5 {
+    color: #333;
+    transition: color 0.2s ease;
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.4;
+    padding: 0.25rem 0;
+    font-size: 0.9rem;
+}
+
+#brands-mega-menu-content .text-o-color-5:hover {
+    color: var(--bs-primary, #007bff);
+    text-decoration: none;
+}
+
+/* Ensure consistent link height for proper calculations */
+#brands-mega-menu-content .text-o-color-5 {
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+}
+
+/* Remove margin from last link in each column for precise height calculations */
+#brands-mega-menu-content .brands-column-content .text-o-color-5:last-child {
+    margin-bottom: 0 !important;
+}
+
+/*
+ * Dynamic Height System:
+ * - Heights are calculated based on data-max-column-size attribute
+ * - Attribute is set in template from backend max_column_size value
+ * - Each link: 40px min-height + 8px padding + 8px margin = 56px total
+ * - Last link has no margin: 48px
+ * - Content height formula: (max_column_size - 1) * 56px + 48px + 10px buffer
+ * - Total height formula: content_height + 152px (separators + padding)
+ */
+
+/* Separator styling */
+.s_hr hr {
+    border-top: 1px solid rgb(52, 244, 193);
+    margin: 1rem 0;
+}
+
+/* Layout styling */
+#brands-mega-menu-content .o_grid_item {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#brands-mega-menu-content .brands-column-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.5rem;
+}
+
+/* Dynamic heights based on data-max-column-size attribute */
+/* Each link: 40px min-height + 8px padding + 8px margin = 56px total */
+/* Last link has no margin: 48px */
+/* Formula: (max_column_size - 1) * 56px + 48px + buffer */
+
+/* Default fallback */
+#brands-mega-menu-content .brands-column-content {
+    height: 200px !important;
+    max-height: 200px !important;
+}
+
+#brands-mega-menu-content .o_grid_item {
+    min-height: 280px !important;
+}
+
+/* Dynamic heights for different column sizes */
+#brands-mega-menu-content .o_grid_item[data-max-column-size="1"] .brands-column-content {
+    height: 58px !important; /* (1-1)*56 + 48 + 10 */
+    max-height: 58px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="1"] {
+    min-height: 210px !important; /* (1-1)*56 + 48 + 162 */
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="2"] .brands-column-content {
+    height: 114px !important; /* (2-1)*56 + 48 + 10 */
+    max-height: 114px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="2"] {
+    min-height: 266px !important; /* (2-1)*56 + 48 + 162 */
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="3"] .brands-column-content {
+    height: 170px !important; /* (3-1)*56 + 48 + 10 */
+    max-height: 170px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="3"] {
+    min-height: 322px !important; /* (3-1)*56 + 48 + 162 */
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="4"] .brands-column-content {
+    height: 226px !important; /* (4-1)*56 + 48 + 10 */
+    max-height: 226px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="4"] {
+    min-height: 378px !important; /* (4-1)*56 + 48 + 162 */
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="5"] .brands-column-content {
+    height: 282px !important; /* (5-1)*56 + 48 + 10 */
+    max-height: 282px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="5"] {
+    min-height: 434px !important; /* (5-1)*56 + 48 + 162 */
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="6"] .brands-column-content {
+    height: 338px !important; /* (6-1)*56 + 48 + 10 */
+    max-height: 338px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size="6"] {
+    min-height: 490px !important; /* (6-1)*56 + 48 + 162 */
+}
+
+/* For larger column sizes (7+), use a general rule with max height */
+#brands-mega-menu-content .o_grid_item[data-max-column-size]:not([data-max-column-size="1"]):not([data-max-column-size="2"]):not([data-max-column-size="3"]):not([data-max-column-size="4"]):not([data-max-column-size="5"]):not([data-max-column-size="6"]) .brands-column-content {
+    height: 400px !important;
+    max-height: 400px !important;
+}
+
+#brands-mega-menu-content .o_grid_item[data-max-column-size]:not([data-max-column-size="1"]):not([data-max-column-size="2"]):not([data-max-column-size="3"]):not([data-max-column-size="4"]):not([data-max-column-size="5"]):not([data-max-column-size="6"]) {
+    min-height: 552px !important;
+}
+
+/* Custom scrollbar styling */
+#brands-mega-menu-content .brands-column-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+#brands-mega-menu-content .brands-column-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 2px;
+}
+
+#brands-mega-menu-content .brands-column-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 2px;
+}
+
+#brands-mega-menu-content .brands-column-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+#brands-mega-menu-content .o_grid_item {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .mega-menu-brands {
+        min-width: auto;
+        max-width: 100%;
+    }
+
+    .mega-menu-brands .dropdown-menu,
+    .navbar-nav .dropdown.mega-menu-brands .dropdown-menu,
+    .o_mega_menu.mega-menu-brands {
+        left: 0 !important;
+        transform: none !important;
+        right: 0 !important;
+        margin: 0 15px;
+    }
+
+    .mega-menu-brands #brands-mega-menu-content .o_grid_item {
+        width: 100% !important;
+        margin-bottom: 1rem;
+    }
+}
