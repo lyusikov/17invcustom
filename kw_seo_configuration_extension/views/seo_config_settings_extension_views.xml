@@ -1,0 +1,12 @@
+<odoo>
+    <record id="view_seo_config_settings_inherit_extension" model="ir.ui.view">
+        <field name="name">res.config.settings.seo.extension</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="kw_seo_configuration.view_seo_config_settings"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group" position="inside">
+                <field name="seo_use_product_tags"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

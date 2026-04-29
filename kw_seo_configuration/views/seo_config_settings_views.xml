@@ -1,0 +1,34 @@
+<odoo>
+    <record id="view_seo_config_settings" model="ir.ui.view">
+        <field name="name">seo.config.settings.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <div class="app_settings_block" data-string="SEO Settings">
+                    <h2>KW SEO Configuration Settings</h2>
+                    <div class="row mt16 o_settings_container">
+                        <div class="o_setting_box col-12 col-lg-6 o_searchable_setting">
+                            <div class="o_setting_left_pane"></div>
+                            <div class="o_setting_right_pane">
+                                <label for="seo_criteria" class="o_form_label">
+                                    <span>SEO Criteria</span>
+                                </label>
+                                <div class="text-muted">
+                                    <span
+                                        searchabletext="Choose whether to use categories, attributes, or both as criteria for applying SEO rules.">
+                                        Choose whether to use categories, attributes, or both as
+                                        criteria for applying SEO rules.
+                                    </span>
+                                </div>
+                                <div class="mt16">
+                                    <field name="seo_criteria" widget="selection" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

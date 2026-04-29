@@ -1,0 +1,59 @@
+<odoo>
+    <record id="action_seo_model" model="ir.actions.act_window">
+        <field name="name">SEO Model</field>
+        <field name="res_model">seo.model</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No SEO Models yet!
+            </p>
+        </field>
+    </record>
+
+    <record id="view_seo_model_tree" model="ir.ui.view">
+        <field name="name">seo.model.tree</field>
+        <field name="model">seo.model</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="seo_title"/>
+                <field name="seo_description"/>
+                <field name="seo_header"/>
+                <field name="related_categories_ids" widget="many2many_tags"/>
+                <field name="attr_values_ids" widget="many2many_tags"/>
+                <field name="apply_all_products_page"/>
+                <field name="website_ids" widget="many2many_tags"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_seo_model_form" model="ir.ui.view">
+        <field name="name">seo.model.form</field>
+        <field name="model">seo.model</field>
+        <field name="arch" type="xml">
+            <form string="SEO Model">
+                <sheet>
+                    <group>
+                        <field name="seo_title"/>
+                        <field name="seo_description"/>
+                        <field name="seo_header"/>
+                        <field name="seo_text" widget="html"/>
+                    </group>
+                    <group>
+                        <field name="apply_all_products_page"/>
+                        <field name="attr_values_ids" widget="many2many_tags"
+                               options="{'readonly': [('apply_all_products_page', '=', True)]}"/>
+                        <field name="related_categories_ids" widget="many2many_tags"
+                               options="{'readonly': [('apply_all_products_page', '=', True)]}"/>
+                        <field name="website_ids" widget="many2many_tags"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <menuitem id="menu_seo_model"
+              name="SEO Models"
+              parent="website.menu_site"
+              action="action_seo_model"
+              sequence="999" />
+</odoo>

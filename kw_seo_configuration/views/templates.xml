@@ -1,0 +1,162 @@
+<odoo>
+    <template id="website_layout" name="Title and description extension" inherit_id="website.layout" priority="99">
+        <xpath expr="//title" position="replace">
+            <t t-set="abs_url" t-value="request.httprequest.path"/>
+            <t t-set="url_parts" t-value="abs_url[1:].split('/')"/>
+            <t t-set="url_parts_cnt" t-value="len(url_parts)"/>
+            <t t-set="model_id_split" t-value="url_parts[-1].split('-')"/>
+            <t t-set="model_id" t-value="int(model_id_split[-1]) if model_id_split[-1].isdigit() else ''"/>
+
+            <t t-if="abs_url == '/'">
+                <t
+                    t-set="search_domain"
+                    t-value="[('key', '=', 'website.homepage'), ('website_id', '=', website.id)]">
+                </t>
+                <t t-set="seo_view" t-value="request.env['ir.ui.view'].sudo().search(search_domain, limit=1)"/>
+            </t>
+            <t t-elif="abs_url.startswith('/blog')">
+                <t t-if="url_parts_cnt == 1"> <!-- root /blog -->
+                    <t
+                        t-set="search_domain"
+                        t-value="[('key', '=', 'website_blog.blog_post_short'), ('website_id', '=', website.id)]">
+                    </t>
+                    <t t-set="seo_view" t-value="request.env['ir.ui.view'].sudo().search(search_domain, limit=1)"/>
+                </t>
+                <t t-elif="url_parts_cnt == 2 and model_id"> <!-- blog /blog/<blog_name>-<id> -->
+                    <t t-set="seo_view" t-value="request.env['blog.blog'].sudo().browse(model_id)"/>
+                </t>
+                <t t-elif="url_parts_cnt == 3 and model_id"> <!-- blog /blog/<blog_name>-<id>/<post_name>-<id> -->
+                    <t t-set="seo_view" t-value="request.env['blog.post'].sudo().browse(model_id)"/>
+                </t>
+            </t>
+            <t t-elif="abs_url.startswith('/shop') and url_parts_cnt == 2 and model_id">
+                <t t-set="seo_view" t-value="request.env['product.template'].sudo().browse(model_id)"/>
+            </t>
+            <t t-else=""> <!-- might be a page -->
+                <t
+                    t-set="search_domain"
+                    t-value="[('url', '=', abs_url), ('website_id', '=', website.id)]">
+                </t>
+                <t t-set="seo_view" t-value="request.env['website.page'].sudo().search(search_domain, limit=1)"/>
+            </t>
+            
+            <title>
+                <t t-if="seo_title">
+                    <t t-esc="seo_title"/>
+                </t>
+                <t t-elif="seo_view and seo_view.exists()">
+                    <t t-set="default_title" t-value="seo_view.name + ' | ' + website.name"></t>
+                    <t t-esc="seo_view.website_meta_title or default_title"/>
+                </t>
+                <t t-else="">
+                    <t t-esc="website.name"/>
+                </t>
+            </title>
+        </xpath>
+
+        <xpath expr="//meta[@name='description']" position="replace">
+            <t t-set="abs_url" t-value="request.httprequest.path"/>
+            <t t-set="url_parts" t-value="abs_url[1:].split('/')"/>
+            <t t-set="url_parts_cnt" t-value="len(url_parts)"/>
+            <t t-set="model_id_split" t-value="url_parts[-1].split('-')"/>
+            <t t-set="model_id" t-value="int(model_id_split[-1]) if model_id_split[-1].isdigit() else ''"/>
+
+            <t t-if="abs_url == '/'">
+                <t
+                    t-set="search_domain"
+                    t-value="[('key', '=', 'website.home'), ('website_id', '=', website.id)]">
+                </t>
+                <t t-set="seo_view" t-value="request.env['ir.ui.view'].sudo().search(search_domain, limit=1)"/>
+            </t>
+            <t t-elif="abs_url.startswith('/blog')">
+                <t t-if="url_parts_cnt == 1"> <!-- root /blog -->
+                    <t
+                        t-set="search_domain"
+                        t-value="[('key', '=', 'website_blog.blog_post_short'), ('website_id', '=', website.id)]">
+                    </t>
+                    <t t-set="seo_view" t-value="request.env['ir.ui.view'].sudo().search(search_domain, limit=1)"/>
+                </t>
+                <t t-elif="url_parts_cnt == 2 and model_id"> <!-- blog /blog/<blog_name>-<id> -->
+                    <t t-set="seo_view" t-value="request.env['blog.blog'].sudo().browse(model_id)"/>
+                </t>
+                <t t-elif="url_parts_cnt == 3 and model_id"> <!-- blog /blog/<blog_name>-<id>/<post_name>-<id> -->
+                    <t t-set="seo_view" t-value="request.env['blog.post'].sudo().browse(model_id)"/>
+                </t>
+            </t>
+            <t t-elif="abs_url.startswith('/brand')">
+                <t t-if="url_parts_cnt == 1"> <!-- root /blog -->
+                    <t
+                        t-set="search_domain"
+                        t-value="[('key', '=', 'website.brands'), ('website_id', '=', website.id)]">
+                    </t>
+                    <t t-set="seo_view" t-value="request.env['ir.ui.view'].sudo().search(search_domain, limit=1)"/>
+                </t>
+            </t>
+            <t t-elif="abs_url.startswith('/shop') and url_parts_cnt == 2 and model_id">
+                <t t-set="seo_view" t-value="request.env['product.template'].sudo().browse(model_id)"/>
+            </t>
+            <t t-else=""> <!-- might be a page -->
+                <t
+                    t-set="search_domain"
+                    t-value="[('url', '=', abs_url), ('website_id', '=', website.id)]">
+                </t>
+                <t t-set="seo_view" t-value="request.env['website.page'].sudo().search(search_domain, limit=1)"/>
+            </t>
+
+            <t t-if="seo_description">
+                <meta name="description" t-att-content="seo_description"/>
+            </t>
+            <t t-elif="seo_view and seo_view.exists()">
+                <t
+                    t-set="seo_description"
+                    t-value="seo_view.website_meta_description">
+                </t>
+                <meta name="description" t-att-content="seo_view.website_meta_description or ''"/>
+            </t>
+            <t t-else="">
+                <meta name="description"  t-att-content=""/>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="custom_category_header" name="Custom Header" inherit_id="website_sale.products" priority="99">
+        <xpath expr="//div[hasclass('products_header')]" position="after">
+            <t t-if="not category_header and main_header">
+                <h1 class="o_default_snippet_text" style="text-align: left;">
+                    <span class="h4-fs">
+                        <strong>
+                            <span><t t-esc="main_header"/></span>
+                        </strong>
+                    </span>
+                    <br />
+                </h1>
+            </t>
+        </xpath>
+
+        <xpath expr="//div[@id='category_header']" position="replace">
+            <t t-if="category_header">
+                <section class="s_title o_colored_level pt0 pb0" data-vcss="001" data-snippet="s_title" data-name="Заголовок" style="background-image: none;">
+                    <div class="s_allow_columns container">
+                        <h1 class="o_default_snippet_text" style="text-align: left;">
+                            <span class="h4-fs">
+                                <strong>
+                                    <span><t t-esc="category_header"/></span>
+                                </strong>
+                            </span>
+                            <br />
+                        </h1>
+                    </div>
+                </section>
+            </t>
+            <t t-else="">
+            </t>
+        </xpath>
+
+        <xpath expr="//div[@id='products_grid']" position="inside">
+            <div class="custom_seo_text">
+                <t t-if="seo_text" t-out="seo_text"/>
+            </div>
+        </xpath>
+    </template>
+
+</odoo>
