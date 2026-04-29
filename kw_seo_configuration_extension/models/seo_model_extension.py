@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import fields, models
+from odoo import api, fields, models
 
 
 class SEOModelExtension(models.Model):
@@ -26,6 +26,7 @@ class SEOModelExtension(models.Model):
         store=True,
     )
 
+    @api.depends('product_tag_ids')
     def _compute_related_products_count(self):
         for record in self:
             product_tags = record.product_tag_ids

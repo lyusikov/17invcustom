@@ -12,7 +12,7 @@
     'version': '17.0.0.0.7',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'website', 'website_sale'],
+    'depends': ['base', 'website', 'website_sale', 'product'],
 
     # always loaded
     'data': [

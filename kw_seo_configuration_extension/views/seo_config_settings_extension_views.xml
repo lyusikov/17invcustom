@@ -4,8 +4,20 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="kw_seo_configuration.view_seo_config_settings"/>
         <field name="arch" type="xml">
-            <xpath expr="//group" position="inside">
-                <field name="seo_use_product_tags"/>
+            <xpath expr="//div[@class='row mt16 o_settings_container']" position="after">
+                <div class="row mt16 o_settings_container">
+                    <div class="o_setting_box col-12 col-lg-6 o_searchable_setting">
+                        <div class="o_setting_left_pane"></div>
+                        <div class="o_setting_right_pane">
+                            <label for="seo_use_product_tags" class="o_form_label">
+                                <span>Use Product Tags for SEO Rules</span>
+                            </label>
+                            <div class="mt16">
+                                <field name="seo_use_product_tags"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </xpath>
         </field>
     </record>

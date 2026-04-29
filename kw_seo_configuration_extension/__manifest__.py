@@ -11,6 +11,7 @@
         'base',
         'website',
         'website_sale',
+        'product',
         'kw_seo_configuration',
     ],
     'data': [
