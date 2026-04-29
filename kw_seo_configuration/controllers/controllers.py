@@ -1,9 +1,9 @@
 from odoo.http import request, route
 from odoo import _
-from odoo.addons.mapmedical_website_sale_brand.controllers.main import WebsiteBrand
+from odoo.addons.website_sale.controllers.main import WebsiteSale
 
 
-class WebSiteSaleRybakavun(WebsiteBrand):
+class WebSiteSaleRybakavun(WebsiteSale):
 
     @route([
         '/shop',
@@ -23,21 +23,11 @@ class WebSiteSaleRybakavun(WebsiteBrand):
             ppg=ppg,
             **post
         )
-        if res.qcontext.get("main_object") and res.qcontext.get("main_object")._name == "product.template":
-            return res
+
         page_prefix = ''
         if page:
             page_prefix = _('Page №') + ' ' + str(page)
-        category=res.qcontext.get("category")
-        # Category = request.env["product.public.category"]
-        # if category:
-        #     category = Category.search([("id", "=", int(category))], limit=1)
-        #     if not category or not category.can_access_from_current_website():
-        #         raise NotFound()
-        # elif res.qcontext.get("category"):
-        #     category=res.qcontext.get("category")
-        # else:
-        #     category = Category
+
         current_route = request.httprequest.path
         if current_route == '/shop' or current_route.startswith('/shop/page'):
             seo_record = request.env['seo.model'].search([
@@ -56,8 +46,7 @@ class WebSiteSaleRybakavun(WebsiteBrand):
                 'seo_text': seo_record.seo_text
                 if not page and seo_record.seo_text else ''})
             return res
-        if not category:
-            return res
+
         res.qcontext.update({
             'seo_title': page_prefix + ' '
             + (category.website_meta_title or self.get_default_title(request)),
@@ -83,6 +72,7 @@ class WebSiteSaleRybakavun(WebsiteBrand):
             seo_record_domain.append(
                 ('attr_values_ids', 'in', [attrib_value_id])
             )
+
         seo_record = request\
             .env['seo.model']\
             .search(seo_record_domain, limit=1)
@@ -92,12 +82,10 @@ class WebSiteSaleRybakavun(WebsiteBrand):
         res.qcontext.update({
             'seo_title': f"{page_prefix} {seo_record.seo_title}",
             'seo_description': f"{page_prefix} {seo_record.seo_description}",
-            'website_meta_description':seo_record.seo_description,
             'seo_text': seo_record.seo_text if not page else '',
-            'category_header': f"{page_prefix} {seo_record.seo_header}"
-                               if seo_record.seo_header else None,
+            'category_header': f"{page_prefix} {seo_record.seo_header or ''}",
         })
-        
+
         return res
 
     def get_attr_value_id(self, attrib_list):

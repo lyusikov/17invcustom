@@ -9,10 +9,10 @@
 
     'category': 'website',
     'license': 'OPL-1',
-    'version': '17.0.0.0.7',
+    'version': '17.0.0.0.6',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'website', 'website_sale', 'product'],
+    'depends': ['base', 'website', 'website_sale'],
 
     # always loaded
     'data': [

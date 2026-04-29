@@ -15,16 +15,7 @@ class SEOModel(models.Model):
         required=False,
         translate=True
     )
-    seo_text = fields.Html(
-        string="SEO Text",
-        required=False,
-        translate=True,
-        sanitize=False,
-        sanitize_style=False,
-        sanitize_form=False,
-        strip_style=False,
-        strip_class=False,
-    )
+    seo_text = fields.Html(string="SEO Text", required=False, translate=True)
 
     related_categories_ids = fields.Many2many(
         comodel_name='product.public.category',
