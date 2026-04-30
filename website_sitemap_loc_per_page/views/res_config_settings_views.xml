@@ -2,10 +2,14 @@
     <record id="website_sitemap_loc_per_page_res_config_settings_view" model="ir.ui.view">
         <field name="name">website.sitemap.loc.per.page.settings</field>
         <field name="model">res.config.settings</field>
-        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="inherit_id" ref="website_sale.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[contains(@class, 'o_setting_container')]" position="inside">
-                <setting string="Sitemap URLs per File" help="Number of URLs to include in each sitemap part.">
+            <xpath expr="//setting[@id='hide_add_to_cart_setting']" position="after">
+                <setting id="sitemap_loc_per_page">
+                    <label for="sitemap_loc_per_page"/>
+                    <div class="text-muted">
+                        Number of URLs to include in each sitemap part file. Smaller values create more files.
+                    </div>
                     <field name="sitemap_loc_per_page"/>
                 </setting>
             </xpath>
